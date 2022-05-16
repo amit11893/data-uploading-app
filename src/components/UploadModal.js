@@ -39,9 +39,7 @@ export function UploadModal({ show, onHide, onUpload }) {
                             <Form.Control
                                 type="file"
                                 onChange={(e) => {
-                                    // console.log(e.target.files[0])
                                     setFile(e.target.files[0])
-                                    console.log("file1: ", file)
                                 }}
                             />
                         </Form.Group>
