@@ -1,6 +1,8 @@
 import React, { useContext } from "react"
 import { storage } from "../firebase"
 import { useAuth } from "../contexts/AuthContext"
+import { uuid } from 'uuidv4';
+
 
 const StorageContext = React.createContext()
 
@@ -11,13 +13,19 @@ export function useStorage() {
 export function StorageProvider({ children }) {
     const { currentUser } = useAuth()
 
-    async function uploadFile(fileTitle, fileDesc, file) {
-        const fileRef = storage.ref(`/files/${currentUser.uid}/${fileTitle}`)
-        try {
-            return await fileRef.put(file)
-        } catch (error) {
-            console.log("error: ", error)
-        }
+    function uploadFile({ fileTitle, fileDesc, file }) {
+        const fileId = uuid();
+        const fileRef = storage.ref(`/files/${currentUser.uid}/${fileId}`)
+
+        return fileRef.put(file, {
+            name: file.name,
+            contentType: file.type,
+            size: file.size,
+            customMetadata: {
+                title: fileTitle,
+                description: fileDesc
+            }
+        })
     }
 
     function listAllFiles() {
@@ -25,27 +33,19 @@ export function StorageProvider({ children }) {
         return ref.listAll()
     }
 
-    async function updateMetadata({ fileTitle, metadata }) {
-        try {
-            const fileRef = storage.ref(`/files/${currentUser.uid}/${fileTitle}`)
-            await fileRef.updateMetadata(metadata)
-        } catch {
-            console.error("Failed to update metadata")
-        }
-    }
 
-    async function deleteFile({ fileTitle }) {
+    async function deleteFile({ fileName }) {
         try {
-            const fileRef = storage.ref(`/files/${currentUser.uid}/${fileTitle}`)
+            const fileRef = storage.ref(`/files/${currentUser.uid}/${fileName}`)
             await fileRef.delete()
         } catch {
             console.error("Failed to delete file")
         }
     }
 
-    async function downloadFile({ fileTitle }) {
+    async function downloadFile({ fileName }) {
         try {
-            const fileRef = storage.ref(`/files/${currentUser.uid}/${fileTitle}`)
+            const fileRef = storage.ref(`/files/${currentUser.uid}/${fileName}`)
             const url = await fileRef.getDownloadURL();
             const save = document.createElement('a');
             if (typeof save.download !== 'undefined') {
@@ -53,7 +53,7 @@ export function StorageProvider({ children }) {
                 // if you are using helper method, such as isNone in ember, you can also do isNone(save.download)
                 save.href = url;
                 save.target = '_blank';
-                save.download = fileTitle;
+                save.download = fileName;
                 save.dispatchEvent(new MouseEvent('click'));
             } else {
                 window.location.href = url; // so that it opens new tab for IE11
@@ -67,7 +67,6 @@ export function StorageProvider({ children }) {
     const value = {
         uploadFile,
         listAllFiles,
-        updateMetadata,
         deleteFile,
         downloadFile,
     }

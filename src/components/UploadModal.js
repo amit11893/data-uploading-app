@@ -46,12 +46,19 @@ export function UploadModal({ show, onHide, onUpload }) {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={onHide}>
+                    <Button variant="secondary" onClick={() => {
+                        onHide();
+                        setFileTitle("");
+                        setFileDesc("");
+                        setFile("");
+                    }}>
                         Cancel
                     </Button>
                     <Button variant="primary" onClick={() => {
-                        console.log("file: ", file)
-                        onUpload(fileTitle, fileDesc, file)
+                        onUpload({ fileTitle, fileDesc, file })
+                        setFileTitle("")
+                        setFileDesc("")
+                        setFile("")
                     }}>
                         Upload
                     </Button>

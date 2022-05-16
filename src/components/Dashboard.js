@@ -21,9 +21,14 @@ export default function Dashboard() {
 
   return (
     <>
-      <Card>
+      <Card className="mt-4">
         <Card.Body>
-          <h2 className="text-center mb-4">Profile</h2>
+
+          <Link to="/" className="btn btn-primary w-25 mt-3">
+            To Home
+          </Link>
+          <h2 className="text-center mb-4">
+            Profile</h2>
           {error && <Alert variant="danger">{error}</Alert>}
           <strong>Email:</strong> {currentUser.email}
           <Link to="/update-profile" className="btn btn-primary w-100 mt-3">
